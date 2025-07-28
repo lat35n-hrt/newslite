@@ -42,8 +42,8 @@ def fetch_guardian_articles(query="technology", page_size=3, fields="headline,bo
 
     for item in data["response"]["results"]:
         total_checked += 1
-        # Skip live blogs
-        if "live" in item["id"]:
+        # Skip live blogs and Quizzes
+        if "live" in item["id"] or "quiz" in item["id"]:
             continue
 
         articles.append({
