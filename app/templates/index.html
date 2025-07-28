@@ -18,5 +18,15 @@
             <p>{{ article.content }}</p>
         </div>
     {% endfor %}
+
+
+    <p>Current page: {{ page }}</p>
+
+    {% if page > 1 %}
+    <a href="/?q={{ query }}&count={{ count }}&page={{ page - 1 }}">Previous</a>
+    {% endif %}
+
+    <a href="/?q={{ query }}&count={{ count }}&page={{ page + 1 }}">Next</a>
+
 </body>
 </html>
