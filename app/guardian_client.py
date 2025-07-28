@@ -13,34 +13,49 @@ GUARDIAN_API_KEY = os.getenv("GUARDIAN_API_KEY")
 # - convenience during manual testing via `if __name__ == "__main__"`
 # - fallback behavior when parameters are not provided in FastAPI requests
 # def fetch_guardian_articles(query="world", page_size=5):
-def fetch_guardian_articles(query="technology", page_size=1, fields="headline,bodyText,trailText", debug=False):
+def fetch_guardian_articles(query="technology", page_size=3, fields="headline,bodyText,trailText", debug=False): # page_size: 1ページあたりの件数
     url = "https://content.guardianapis.com/search"
-    params = {
-        "api-key": GUARDIAN_API_KEY,
-        "q": query,
-        "page-size": page_size,
-        "show-fields": fields,
-        "order-by": "newest"
-    }
-
-    response = httpx.get(url, params=params)
-
-    if debug:
-        print("<<< STATUS CODE >>>", response.status_code)
-        print("<<< RESPONSE TEXT START >>>", response.text[:200])  # Truncate for readability
-        print("<<< RESPONSE TEXT END >>>")
-
-    response.raise_for_status()
-    data = response.json()
-
     articles = []
-    for item in data["response"]["results"]:
-        articles.append({
-            "title": item["webTitle"],
-            "url": item["webUrl"],
-            "content": item["fields"].get("bodyText", ""),
-        })
+    page = 1
+    total_checked = 0
+    per_page_limit = 5
 
+    while len(articles) < page_size and total_checked < 100:  # 無限ループ防止
+        params = {
+            "api-key": GUARDIAN_API_KEY,
+            "q": query,
+            "page-size": per_page_limit,
+            "show-fields": fields,
+            "order-by": "newest"
+        }
+
+        response = httpx.get(url, params=params)
+
+        if debug:
+            print("<<< STATUS CODE >>>", response.status_code)
+            print("<<< RESPONSE TEXT START >>>", response.text[:200])  # Truncate for readability
+            print("<<< RESPONSE TEXT END >>>")
+
+        response.raise_for_status()
+        data = response.json()
+
+
+        for item in data["response"]["results"]:
+            total_checked += 1
+            # Skip live blogs
+            if "live" in item["id"]:
+                continue
+
+            articles.append({
+                "title": item["webTitle"],
+                "url": item["webUrl"],
+                "content": item["fields"].get("bodyText", ""),
+            })
+
+            if len(articles) >= page_size:
+                break
+
+        page+=1
 
     if debug:
         for article in articles:
