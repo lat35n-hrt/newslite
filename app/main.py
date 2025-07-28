@@ -1,7 +1,8 @@
 # app/main.py
 
-from fastapi import FastAPI, Query
-from fastapi.responses import JSONResponse
+from fastapi import FastAPI, Query, Request
+from fastapi.responses import JSONResponse, HTMLResponse
+from fastapi.templating import Jinja2Templates
 from app.guardian_client import fetch_guardian_articles
 from app.summary_llm import summarize_article
 
@@ -45,3 +46,16 @@ def summarize_article(q: str = Query("climate"), count: int = Query(1)):
 @app.get("/sample_summaries")
 def get_sample_summaries():
     return JSONResponse(content={"summaries": sample_summaries})
+
+templates = Jinja2Templates(directory="app/templates")
+
+@app.get("/", response_class=HTMLResponse)
+def search_ui(request: Request, q: str = "technology", count: int = 3):
+    print(f"DEBUG: q={q}, count={count}")
+    articles = fetch_guardian_articles(query=q, page_size=count)
+    return templates.TemplateResponse("index.html", {
+        "request": request,
+        "articles": articles,
+        "query": q,
+        "count": count,
+    })
