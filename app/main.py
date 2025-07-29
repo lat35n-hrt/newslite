@@ -50,7 +50,13 @@ def get_sample_summaries():
 templates = Jinja2Templates(directory="app/templates")
 
 @app.get("/", response_class=HTMLResponse)
-def search_ui(request: Request, q: str = "technology", count: int = 3, page: int = 1):
+def search_ui(
+    request: Request,
+    q: str = "technology",
+    count: int = Query(3, ge=1, le=30),  # max 30 and min 1
+    page: int = Query(1, ge=1)
+    ):
+
     print(f"DEBUG: q={q}, count={count}, page={page}")
     articles = fetch_guardian_articles(query=q, page_size=count, page=page)
     return templates.TemplateResponse("index.html", {

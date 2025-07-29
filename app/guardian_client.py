@@ -19,6 +19,9 @@ def fetch_guardian_articles(query="technology", page_size=3, fields="headline,bo
     total_checked = 0
     # per_page_limit = 5
 
+    max_allowed = 30 # max 30 articles per page
+    page_size = min(page_size, max_allowed)
+
 #    while len(articles) < page_size and total_checked < 100:  # 無限ループ防止
     params = {
         "api-key": GUARDIAN_API_KEY,
@@ -49,7 +52,7 @@ def fetch_guardian_articles(query="technology", page_size=3, fields="headline,bo
         articles.append({
             "title": item["webTitle"],
             "url": item["webUrl"],
-            "content": item["fields"].get("bodyText", ""),
+            "content": item["fields"].get("trailText", ""),
         })
 
         # if len(articles) >= page_size:
