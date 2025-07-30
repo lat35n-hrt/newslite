@@ -8,6 +8,11 @@
     <form method="get">
         Keyword: <input type="text" name="q" value="{{ query }}">
         Count: <input type="number" name="count" value="{{ count }}" min="1" max="10">
+        Content Type:
+        <select name="content_type">
+            <option value="body" {% if content_type == 'body' %}selected{% endif %}>Full Article</option>
+            <option value="trail" {% if content_type == 'trail' %}selected{% endif %}>Summary</option>
+        </select>
         <button type="submit">Search</button>
     </form>
 
@@ -23,10 +28,10 @@
     <p>Current page: {{ page }}</p>
 
     {% if page > 1 %}
-    <a href="/?q={{ query }}&count={{ count }}&page={{ page - 1 }}">Previous</a>
+    <a href="/?q={{ query }}&count={{ count }}&page={{ page - 1 }}&content_type={{ content_type }}">Previous</a>
     {% endif %}
 
-    <a href="/?q={{ query }}&count={{ count }}&page={{ page + 1 }}">Next</a>
+    <a href="/?q={{ query }}&count={{ count }}&page={{ page + 1 }}&content_type={{ content_type }}">Next</a>
 
 </body>
 </html>

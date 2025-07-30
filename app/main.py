@@ -54,15 +54,25 @@ def search_ui(
     request: Request,
     q: str = "technology",
     count: int = Query(3, ge=1, le=30),  # max 30 and min 1
-    page: int = Query(1, ge=1)
-    ):
+    page: int = Query(1, ge=1),
+    content_type: str = Query("body", pattern="^(body|trail)$")
+):
 
     print(f"DEBUG: q={q}, count={count}, page={page}")
     articles = fetch_guardian_articles(query=q, page_size=count, page=page)
+
+    # contentの種類を切り替え
+    for article in articles:
+        article["content"] = (
+            article["fields"].get("bodyText", "") if content_type == "body"
+            else article["fields"].get("trailText", "")
+        )
+
     return templates.TemplateResponse("index.html", {
         "request": request,
         "articles": articles,
         "query": q,
         "count": count,
         "page": page,
+        "content_type": content_type,
     })

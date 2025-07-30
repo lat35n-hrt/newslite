@@ -53,6 +53,7 @@ def fetch_guardian_articles(query="technology", page_size=3, fields="headline,bo
             "title": item["webTitle"],
             "url": item["webUrl"],
             "content": item["fields"].get("trailText", ""),
+            "fields": item["fields"],
         })
 
         # if len(articles) >= page_size:
