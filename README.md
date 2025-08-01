@@ -168,6 +168,79 @@ debug=True will print trimmed fields to keep terminal output readable.
 The function always returns articles regardless of the debug flag.
 
 
+
+## 📰 Daily News Summary Generation
+This project includes a daily summary feature that fetches and summarizes articles from The Guardian in three categories: technology, climate, and education.
+
+🛠 Run the summary job manually
+To fetch and summarize the latest articles, run:
+
+
+```husb
+PYTHONPATH=. python scripts/daily_summary_job.py
+````
+
+
+Summaries will be saved as a JSON file under data/, named like:
+data/daily_summary_2025-08-01.json
+
+The script will skip execution if a summary for today already exists.
+
+(Optional) You can set USE_DUMMY=true in .env for testing without calling the OpenAI API.
+
+🌐 View the summaries in browser
+After generating the summary file, you can access the /daily endpoint:
+
+```bash
+http://localhost:8000/daily
+
+````
+This renders the latest daily summaries using the saved JSON.
+
+
+## 💰 Token / Cost Control Strategy Before Enabling OpenAI in Production
+
+To prevent excessive API usage and unexpected billing, this project includes a lightweight usage tracker.
+
+📊 Usage Tracking with usage_tracker.json
+OpenAI API calls are tracked via a local JSON file:
+data/usage_tracker.json
+
+Example content:
+
+```json
+{
+  "total_cost_usd": 2.14,
+  "last_reset": "2025-08-01"
+}
+
+```
+
+🔒 Monthly Cost Limit
+A monthly hard limit (default: $3.00) is enforced in code.
+
+When the cost exceeds the limit, API calls are blocked, and a warning is raised.
+
+⚙️ How It Works
+Every time a summary is generated using the OpenAI API, an estimated cost (e.g., $0.01) is logged by:
+
+```python
+from app.usage_tracker import check_and_log_usage
+
+check_and_log_usage(0.01)
+```
+The tracker will automatically reset at the start of each month.
+
+## 🧪 Testing Without API Calls
+For development or offline testing, enable dummy mode by adding the following to .env:
+
+```env
+USE_DUMMY=true
+This will bypass OpenAI and return placeholder summaries.
+```
+
+
+
 ## 🧭 Roadmap
 Better error handling & logging
 
