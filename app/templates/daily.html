@@ -1,0 +1,21 @@
+<!-- app/templates/daily.html -->
+
+<html>
+<head><title>Daily Summary</title></head>
+<body>
+  <h1>Daily News Summary</h1>
+
+  {% if error %}
+    <p style="color:red;">{{ error }}</p>
+  {% endif %}
+
+  {% for item in summaries %}
+    <div>
+      <h2><a href="{{ item.url }}">{{ item.title }}</a></h2>
+      <p><strong>Topic:</strong> {{ item.topic }}</p>
+      <p>{{ item.summary | safe }}</p>
+      <hr>
+    </div>
+  {% endfor %}
+</body>
+</html>
