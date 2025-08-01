@@ -5,6 +5,9 @@ from fastapi.responses import JSONResponse, HTMLResponse
 from fastapi.templating import Jinja2Templates
 from app.guardian_client import fetch_guardian_articles
 from app.summary_llm import summarize_article
+import json
+from datetime import date
+from pathlib import Path
 
 # Test Data
 sample_summaries = [
@@ -75,4 +78,26 @@ def search_ui(
         "count": count,
         "page": page,
         "content_type": content_type,
+    })
+
+
+@app.get("/daily", response_class=HTMLResponse)
+def daily_summary_page(request: Request):
+    today_str = date.today().isoformat()
+    data_file = Path(f"data/daily_summary_{today_str}.json")
+
+    if not data_file.exists():
+        return templates.TemplateResponse("daily.html", {
+            "request": request,
+            "summaries": [],
+            "error": "No summary data found for today."
+        })
+
+    with open(data_file, "r", encoding="utf-8") as f:
+        summaries = json.load(f)
+
+    return templates.TemplateResponse("daily.html", {
+        "request": request,
+        "summaries": summaries,
+        "error": None
     })
