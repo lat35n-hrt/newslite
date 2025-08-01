@@ -1,0 +1,47 @@
+# scripts/daily_summary_job.py
+
+import json
+from pathlib import Path
+from datetime import date
+from app.guardian_client import fetch_guardian_articles
+from app.summary_llm import summarize_article
+from dotenv import load_dotenv
+
+load_dotenv()
+
+OUTPUT_DIR = Path("data")
+OUTPUT_DIR.mkdir(exist_ok=True)
+today_str = date.today().isoformat()
+output_file = OUTPUT_DIR / f"daily_summary_{today_str}.json"
+
+
+if output_file.exists():
+    print(f"⛔ Summary already exists for {today_str}")
+    exit(0)
+
+topics = ["technology", "climate", "education"]
+summaries = []
+
+for topic in topics:
+    articles = fetch_guardian_articles(query=topic, page_size=3)
+    for article in articles:
+        body = article.get("fields", {}).get("bodyText", "")
+
+        if not body:
+            continue
+
+        result = summarize_article(body)
+        summaries.append({
+            "title": article.get("webTitle", "(No title)"),
+            "url": article.get("webUrl", "#"),
+            "topic": topic,
+            "summary": result.get("summary", "(Summary unavailable)")
+        })
+
+
+with open(output_file, "w", encoding="utf-8") as f:
+    json.dump(summaries, f, ensure_ascii=False, indent=2)
+
+print(f"✅ Saved daily summary to {output_file}")
+
+exit(0)
