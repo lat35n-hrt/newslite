@@ -3,19 +3,35 @@
 import os
 from dotenv import load_dotenv
 from openai import OpenAI
+from app.usage_tracker import check_and_log_usage
+
 
 load_dotenv()
 
+# Call OpenAI API
+
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
-def summarize_article(article_text: str) -> dict:
-    prompt = f"""
-You are an assistant that simplifies news articles for English learners.
+USE_DUMMY = os.getenv("USE_DUMMY_SUMMARY", "false").lower() == "true"
 
-Summarize the following article in simple English suitable for learners at CEFR B1 level.
-Limit to around 100 words.
-Avoid difficult vocabulary.
-Include 3 useful English vocabulary words from the article, each with a short definition in simple English.
+
+def summarize_article(article_text: str) -> dict:
+
+    if USE_DUMMY:
+        return {"summary": "(This is a test summary due to quota limits.)"}
+
+    # Estimated cost per summary (tentatively 0.01 USD)
+    check_and_log_usage(0.01)
+
+
+    """
+    Returns a ~100-word plain English summary of the given article text.
+    Optimized for clarity and readability for general users (not learners).
+    """
+    prompt = f"""
+Summarize the following news article in clear and simple English.
+Keep the summary around 100 words.
+Do not include vocabulary explanations.
 
 Article:
 \"\"\"
@@ -23,16 +39,21 @@ Article:
 \"\"\"
 """
 
-    response = client.chat.completions.create(
-        model="gpt-3.5-turbo",  # "gpt-3.5-turbo" or "gpt-4"
-        messages=[{"role": "user", "content": prompt}],
-        temperature=0.7,
-    )
+    try:
+        response = client.chat.completions.create(
+            model="gpt-3.5-turbo",
+            messages=[{"role": "user", "content": prompt}],
+            temperature=0.7, # Standard creativity level; allows some diversity and natural rephrasing.
+            max_tokens=500,  # Sufficient for long summaries.
+        )
+        result = response.choices[0].message.content.strip()
 
-    result = response.choices[0].message.content.strip()
-    return {"summary": result}
+    except Exception as e:
+        print(f"Summary error: {e}")
+        return {"summary": "(Summary unavailable)"}
 
 
+# Manual test (optional)
 if __name__ == "__main__":
     test_article = """
     A new study shows that sea levels are rising faster than expected due to melting glaciers.
