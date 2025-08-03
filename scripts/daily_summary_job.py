@@ -25,6 +25,7 @@ summaries = []
 for topic in topics:
     articles = fetch_guardian_articles(query=topic, page_size=3)
     for article in articles:
+        # print(json.dumps(article, indent=2)) # debug
         body = article.get("fields", {}).get("bodyText", "")
 
         if not body:
@@ -32,8 +33,8 @@ for topic in topics:
 
         result = summarize_article(body)
         summaries.append({
-            "title": article.get("webTitle", "(No title)"),
-            "url": article.get("webUrl", "#"),
+            "title": article.get("title", "(No title)"),
+            "url": article.get("url", "#"),
             "topic": topic,
             "summary": result.get("summary", "(Summary unavailable)")
         })
