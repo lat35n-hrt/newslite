@@ -47,6 +47,7 @@ Article:
             max_tokens=500,  # Sufficient for long summaries.
         )
         result = response.choices[0].message.content.strip()
+        return {"summary": result}
 
     except Exception as e:
         print(f"Summary error: {e}")
