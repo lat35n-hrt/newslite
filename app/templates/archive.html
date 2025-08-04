@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title> News Summary Archive</title>
+</head>
+<body>
+    <h1>🗞️ News Summary Archive {{ date }}</h1>
+    <ul>
+        {% for date in dates %}
+            <li><a href="/archive/{{ date }}">{{ date }}</a></li>
+        {% endfor %}
+    </ul>
+    <ul>
+        {% for article in articles %}
+            <li style="margin-bottom: 20px;">
+                <h3><a href="{{ article.url }}" target="_blank">{{ article.title }}</a></h3>
+                <p>{{ article.summary }}</p>
+            </li>
+        {% endfor %}
+    </ul>
+</body>
+</html>
