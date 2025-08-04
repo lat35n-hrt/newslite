@@ -20,8 +20,9 @@ def summarize_article(article_text: str) -> dict:
     if USE_DUMMY:
         return {"summary": "(This is a test summary due to quota limits.)"}
 
-    # Estimated cost per summary (tentatively 0.01 USD)
-    check_and_log_usage(0.01)
+    # Estimated cost per article summary (tentatively 0.01 USD)
+    # 0.0005 x 6 articles 4 times = 0.012 USD (0.01 USD on Open AI server side)
+    check_and_log_usage(0.0005)
 
 
     """
