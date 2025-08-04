@@ -13,6 +13,7 @@ OUTPUT_DIR = Path("data")
 OUTPUT_DIR.mkdir(exist_ok=True)
 today_str = date.today().isoformat()
 output_file = OUTPUT_DIR / f"daily_summary_{today_str}.json"
+output_file_full = OUTPUT_DIR / f"daily_full_article_{today_str}.json"
 
 
 if output_file.exists():
@@ -21,6 +22,7 @@ if output_file.exists():
 
 topics = ["technology", "climate", "education"]
 summaries = []
+full_articles = []
 
 for topic in topics:
     articles = fetch_guardian_articles(query=topic, page_size=3)
@@ -38,6 +40,12 @@ for topic in topics:
             "topic": topic,
             "summary": result.get("summary", "(Summary unavailable)")
         })
+
+    full_articles.extend(articles) # for a full backup
+
+# Save Full Articles
+with open(output_file_full, "w", encoding="utf-8") as f:
+    json.dump(full_articles, f, ensure_ascii=False, indent=2)
 
 
 with open(output_file, "w", encoding="utf-8") as f:
