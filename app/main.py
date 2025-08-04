@@ -8,6 +8,8 @@ from app.summary_llm import summarize_article
 import json
 from datetime import date
 from pathlib import Path
+from routes import archive
+
 
 # Test Data
 sample_summaries = [
@@ -23,6 +25,8 @@ sample_summaries = [
 
 
 app = FastAPI()
+
+app.include_router(archive.router)
 
 @app.get("/guardian")
 def get_guardian_news(q: str = Query("technology"), count: int = Query(1)):
