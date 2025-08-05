@@ -240,6 +240,32 @@ This will bypass OpenAI and return placeholder summaries.
 ```
 
 
+## 🆕 New Features
+## ✅ Save Full Articles
+The daily_summary_job.py script now saves not only the summaries but also the original full articles retrieved from the Guardian API.
+
+File location: data/daily_full_article_YYYY-MM-DD.json
+
+Contents: Each article includes title, url, bodyText, and other metadata under the fields key.
+
+This allows for later reference or reprocessing of the full article content.
+
+## ✅ Archive Summary by Date (HTML View)
+A new archive view is available to browse saved summaries by date using FastAPI and Jinja2 templates.
+
+URL format:
+http://localhost:8000/archive/YYYY-MM-DD
+(e.g., http://localhost:8000/archive/2025-08-04)
+
+Data source:
+Reads from data/daily_summary_YYYY-MM-DD.json
+
+Rendered using:
+app/templates/archive.html template
+
+Each article summary is displayed with a link to the original article and its summarized content.
+
+
 
 ## 🧭 Roadmap
 Better error handling & logging
