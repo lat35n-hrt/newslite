@@ -25,6 +25,7 @@ def summarize_article(article_text: str) -> dict:
     check_and_log_usage(0.0005)
 
 
+
     """
     Returns a ~100-word plain English summary of the given article text.
     Optimized for clarity and readability for general users (not learners).
@@ -47,6 +48,16 @@ Article:
             temperature=0.7, # Standard creativity level; allows some diversity and natural rephrasing.
             max_tokens=500,  # Sufficient for long summaries.
         )
+
+        # TODO: After verifying token average, replace fixed cost tracking with dynamic token-based calculation
+        # check and log usage
+        # PRICE_PER_1K_TOKEN = 0.0005 # for gpt-3.5-turbo output
+        # tokens = response.usage.total_tokens
+        # cost = tokens * (PRICE_PER_1K_TOKEN / 1000)
+        # print(f"Tokens: {tokens}, Estimated cost: ${cost:.5f}")
+        # check_and_log_usage(cost)
+
+
         result = response.choices[0].message.content.strip()
         return {"summary": result}
 
