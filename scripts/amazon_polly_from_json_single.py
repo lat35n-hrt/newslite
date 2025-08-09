@@ -1,4 +1,4 @@
-# amazon_polly_from_json.py
+# amazon_polly_from_json_single.py
 
 import json
 from pathlib import Path
@@ -18,8 +18,8 @@ polly = boto3.client(
 )
 
 # Joson path and output directory
-json_path = Path("data/daily_summary_2025-08-03.json")
-output_dir = Path("output/audio/2025-08-03")
+json_path = Path("data/daily_summary_2025-08-08.json")
+output_dir = Path("output/audio/2025-08-08")
 output_dir.mkdir(parents=True, exist_ok=True)
 
 # Load JSON
@@ -28,7 +28,8 @@ with open(json_path, "r", encoding="utf-8") as f:
 
 # Narrator
 # https://docs.aws.amazon.com/polly/latest/dg/available-voices.html
-voice_id = "Ruth" # Female + US English
+# voice_id = "Ruth" # Female + US English (Ruth and Joanna)
+# Set voice id in .env
 
 # Max Polly Charracters Length (UTF8)
 MAX_POLLY_CHAR_LENGTH = 3000
@@ -52,8 +53,8 @@ for i, article in enumerate(data, 1):
         response = polly.synthesize_speech(
             Text=summary,
             OutputFormat="mp3",
-            VoiceId=voice_id,
-            Engine="neural"
+            VoiceId=os.getenv("AWS_POLLY_VOICE_ID", "Ruth"),
+            Engine=os.getenv("AWS_POLLY_ENGINE", "neural")
         )
 
         # Save the audio stream to a file
