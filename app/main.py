@@ -9,7 +9,7 @@ import json
 from datetime import date
 from pathlib import Path
 from routes import archive
-
+from fastapi.staticfiles import StaticFiles
 
 # Test Data
 sample_summaries = [
@@ -24,9 +24,17 @@ sample_summaries = [
 ]
 
 
+
 app = FastAPI()
 
 app.include_router(archive.router)
+
+# serve files under /static -> project-root/output
+# make sure output/ directory exists
+# This will make files saved under output/ available at http://.../static/....
+Path("output").mkdir(parents=True, exist_ok=True)
+app.mount("/static", StaticFiles(directory="output"), name="static")
+
 
 @app.get("/guardian")
 def get_guardian_news(q: str = Query("technology"), count: int = Query(1)):
