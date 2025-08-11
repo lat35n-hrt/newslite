@@ -12,8 +12,9 @@ GUARDIAN_API_KEY = os.getenv("GUARDIAN_API_KEY")
 # Default values for 'query' and 'page_size' are set for:
 # - convenience during manual testing via `if __name__ == "__main__"`
 # - fallback behavior when parameters are not provided in FastAPI requests
-# def fetch_guardian_articles(query="world", page_size=5):
-def fetch_guardian_articles(query="technology", page_size=3, fields="headline,bodyText,trailText", page=1, debug=False): # page_size: 1ページあたりの件数
+# page_size: number of article per page
+# page: page number on Guardian API
+def fetch_guardian_articles(query="technology", page_size=3, fields="headline,bodyText,trailText", page=1, debug=False):
     url = "https://content.guardianapis.com/search"
     articles = []
     total_checked = 0
@@ -45,8 +46,12 @@ def fetch_guardian_articles(query="technology", page_size=3, fields="headline,bo
 
     for item in data["response"]["results"]:
         total_checked += 1
-        # Skip live blogs and Quizzes
-        if "live" in item["id"] or "quiz" in item["id"]:
+        # Skip live blogs, Quizzes, and Obituaries
+        # id: unique idenfitiers of articles e.g.
+        # world/live/2025/aug/08/uk-election-live-updates
+        # sport/quiz/2025/aug/08/football-weekly
+
+        if "live" in item["id"] or "quiz" in item["id"] or "obituary" in item["webTitle"].lower():
             continue
 
         articles.append({
