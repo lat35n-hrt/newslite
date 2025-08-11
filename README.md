@@ -265,6 +265,21 @@ app/templates/archive.html template
 
 Each article summary is displayed with a link to the original article and its summarized content.
 
+## Audio Playback and Download
+
+For each vocabulary entry, you can play the corresponding MP3 audio directly in your browser or download it for offline use.
+
+- **Play in Browser:** Click the play button to listen to the pronunciation or example sentence.
+- **Download MP3:** Click the download icon or link to save the file locally.
+
+> **Note:** The screenshots below are provided for illustration purposes only. The actual user interface may change in future updates.
+
+### Example
+
+![Audio Player Screenshot](docs/images/audio_player_example.png)
+
+
+
 ## 📄 Docs
 
 See [OpenAI Pricing Notes](docs/cost/openai_pricing_notes.md) for details on token usage and cost estimation.
