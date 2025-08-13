@@ -6,11 +6,27 @@ import json
 from datetime import datetime
 
 USAGE_FILE = "data/usage_tracker.json"
-MONTHLY_LIMIT = 3.0  # USD
+USAGE_FILE.parent.mkdir(parents=True, exist_ok=True)
 
+OPENAI_MONTHLY_LIMIT_USD = float(os.getenv("OPENAI_MONTHLY_LIMIT_USD", "3.0"))
+POLLY_MONTHLY_LIMIT_CHARS = int(os.getenv("POLLY_MONTHLY_LIMIT_CHARS", "1000000")) # 1000000 for free charge max in 12 months of creating an account
+
+# Initialization
+def _init_usage():
+    return {
+        "openai_total_usd": 0.0,
+        "polly_total_chars": 0,
+        "last_reset": datetime.now().strftime("%Y-%m") # Reset monthly
+    }
+
+# Loading usage
 def load_usage():
-    if not os.path.exists(USAGE_FILE):
-        return {"total_cost_usd": 0.0, "last_reset": datetime.now().strftime("%Y-%m-%d")}
+    # init
+    if not USAGE_FILE.exists():
+        usage = _init_usage()
+        save_usage(usage)
+        return usage
+
     with open(USAGE_FILE) as f:
         return json.load(f)
 
@@ -24,11 +40,11 @@ def check_and_log_usage(estimated_cost_usd):
 
     # 月初でリセット
     if usage["last_reset"][:7] != now.strftime("%Y-%m"):
-        usage = {"total_cost_usd": 0.0, "last_reset": now.strftime("%Y-%m-%d")}
+        usage = {"openai_total_usd": 0.0, "last_reset": now.strftime("%Y-%m")}
 
-    new_total = usage["total_cost_usd"] + estimated_cost_usd
-    if new_total > MONTHLY_LIMIT:
+    new_total = usage["openai_total_usd"] + estimated_cost_usd
+    if new_total > OPENAI_MONTHLY_LIMIT_USD:
         raise Exception("Monthly OpenAI API budget exceeded")
 
-    usage["total_cost_usd"] = new_total
+    usage["openai_total_usd"] = new_total
     save_usage(usage)
