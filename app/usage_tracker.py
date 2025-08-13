@@ -30,17 +30,21 @@ def load_usage():
     with open(USAGE_FILE) as f:
         return json.load(f)
 
+    # usage["last_reset"] holds the most recent reset month (i.e., the month currently being tracked)
+    # The name "last_reset" may be somewhat misleading intuitively, but it currently refers to this month's data
+    current_month = datetime.now().strftime("%Y-%m")
+    if usage.get("last_reset") != current_month:
+        usage = _init_usage()
+        save_usage(usage)
+    return usage
+
+
 def save_usage(data):
     with open(USAGE_FILE, "w") as f:
         json.dump(data, f)
 
 def check_and_log_usage(estimated_cost_usd):
     usage = load_usage()
-    now = datetime.now()
-
-    # 月初でリセット
-    if usage["last_reset"][:7] != now.strftime("%Y-%m"):
-        usage = {"openai_total_usd": 0.0, "last_reset": now.strftime("%Y-%m")}
 
     new_total = usage["openai_total_usd"] + estimated_cost_usd
     if new_total > OPENAI_MONTHLY_LIMIT_USD:
