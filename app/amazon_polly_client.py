@@ -71,7 +71,7 @@ def summaries_to_mp3(
                 f.write(response["AudioStream"].read())
 
             # check and log amazan polly usage
-            text_len = 500 # 100 words x 5 chars on average
+            text_len = len(summary) # Initial sample data 500: 100 words x 5 chars on average
             check_and_log_polly(text_len)
 
         except Exception as e:
