@@ -5,6 +5,7 @@ from pathlib import Path
 import boto3
 import os
 from dotenv import load_dotenv
+from app.usage_tracker import check_and_log_polly
 
 # Max Polly Characters Length (UTF8)
 MAX_POLLY_CHAR_LENGTH = 3000
@@ -68,6 +69,10 @@ def summaries_to_mp3(
             # Save the audio stream to a file
             with open(output_path, "wb") as f:
                 f.write(response["AudioStream"].read())
+
+            # check and log amazan polly usage
+            text_len = 500 # 100 words x 5 chars on average
+            check_and_log_polly(text_len)
 
         except Exception as e:
             print(f"⚠️ Failed to generate audio for article {i}: {e}")

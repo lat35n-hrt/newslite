@@ -3,7 +3,7 @@
 import os
 from dotenv import load_dotenv
 from openai import OpenAI
-from app.usage_tracker import check_and_log_usage
+from app.usage_tracker import check_and_log_openai
 
 
 load_dotenv()
@@ -22,7 +22,7 @@ def summarize_article(article_text: str) -> dict:
 
     # Estimated cost per article summary (tentatively 0.01 USD)
     # 0.0005 x 6 articles 4 times = 0.012 USD (0.01 USD on Open AI server side)
-    check_and_log_usage(0.0005)
+    check_and_log_openai(0.0005)
 
 
 

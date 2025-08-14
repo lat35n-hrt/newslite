@@ -1,11 +1,12 @@
 # data/usage_tracker.json
-# {"total_cost_usd": 2.14, "last_reset": "2025-07-01"}
+# {"openai_total_usd": 0.003, "polly_total_chars": 3000, "last_reset": "2025-08"}
 
 import os
 import json
 from datetime import datetime
+from pathlib import Path
 
-USAGE_FILE = "data/usage_tracker.json"
+USAGE_FILE = Path("data/usage_tracker.json")
 USAGE_FILE.parent.mkdir(parents=True, exist_ok=True)
 
 OPENAI_MONTHLY_LIMIT_USD = float(os.getenv("OPENAI_MONTHLY_LIMIT_USD", "3.0"))
@@ -43,12 +44,22 @@ def save_usage(data):
     with open(USAGE_FILE, "w") as f:
         json.dump(data, f)
 
-def check_and_log_usage(estimated_cost_usd):
+def check_and_log_openai (estimated_cost_usd: float):
     usage = load_usage()
-
     new_total = usage["openai_total_usd"] + estimated_cost_usd
+
     if new_total > OPENAI_MONTHLY_LIMIT_USD:
         raise Exception("Monthly OpenAI API budget exceeded")
 
     usage["openai_total_usd"] = new_total
+    save_usage(usage)
+
+def check_and_log_polly(chars: int):
+    usage = load_usage()
+    new_total = usage["polly_total_chars"] + chars
+
+    if new_total > POLLY_MONTHLY_LIMIT_CHARS:
+        raise Exception(f"Polly monthly char limit exceeded")
+
+    usage["polly_total_chars"] = new_total
     save_usage(usage)
