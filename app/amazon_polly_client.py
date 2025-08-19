@@ -10,6 +10,28 @@ from app.usage_tracker import check_and_log_polly
 # Max Polly Characters Length (UTF8)
 MAX_POLLY_CHAR_LENGTH = 3000
 
+def save_polly_settings(folder: Path, rate: str, engine: str, voice_id: str):
+    """
+    Save Polly synthesis settings into a JSON file (settings.json)
+    inside the given folder.
+
+    Args:
+        folder (Path): Directory where the mp3 is stored.
+        rate (str): Speech rate, e.g. "90%".
+        engine (str): Polly engine, e.g. "neural".
+        voice_id (str): Polly voice ID, e.g. "Ruth".
+    """
+    settings = {
+        "rate": rate,
+        "engine": engine,
+        "voice_id": voice_id
+    }
+
+    settings_path = Path(folder) / "settings.json"
+    with open(settings_path, "w", encoding="utf-8") as f:
+        json.dump(settings, f, indent=2, ensure_ascii=False)
+
+    print(f"[INFO] Polly settings saved -> {settings_path}")
 
 def summaries_to_mp3(
     json_path: Path,
@@ -60,7 +82,10 @@ def summaries_to_mp3(
         try:
             # Synthesize speech
             response = polly.synthesize_speech(
-                Text=summary,
+                # Text=summary,
+                # SSML test with rate setting
+                Text=f"<speak><prosody rate='90%'>{summary}</prosody></speak>",
+                TextType="ssml",
                 OutputFormat="mp3",
                 VoiceId=voice_id,
                 Engine=engine
@@ -78,6 +103,9 @@ def summaries_to_mp3(
             print(f"⚠️ Failed to generate audio for article {i}: {e}")
 
     print("✅ All summaries converted to audio.")
+
+    # Add setting file in the daily directory
+    save_polly_settings(output_dir, rate="90%", engine=engine, voice_id=voice_id)
 
 
 if __name__ == "__main__":
