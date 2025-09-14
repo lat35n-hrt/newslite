@@ -6,6 +6,12 @@ import boto3
 import os
 from dotenv import load_dotenv
 from app.usage_tracker import check_and_log_polly
+from contextlib import closing
+import html
+
+# Sanitize text for SSML
+def sanitize_for_ssml(text: str) -> str:
+    return html.escape(text, quote=True).replace("\n", " ")
 
 # Max Polly Characters Length (UTF8)
 MAX_POLLY_CHAR_LENGTH = 3000
@@ -69,12 +75,17 @@ def summaries_to_mp3(
     # Process each article
     for i, article in enumerate(data, 1):
         summary = article.get("summary", "").strip()
-        if not summary:
+        safe_text = sanitize_for_ssml(summary)
+
+        if not safe_text:
             continue
 
-        if len(summary) > MAX_POLLY_CHAR_LENGTH:
-            print(f"⚠️ Skipping article {i} – text too long ({len(summary)} characters)")
+        if len(safe_text) > MAX_POLLY_CHAR_LENGTH:
+            print(f"⚠️ Skipping article {i} – text too long ({len(safe_text)} characters)")
             continue
+
+        # Wrap with <speak> and <prosody>
+        summary_ssml = f"<speak><prosody rate='90%'>{safe_text}</prosody></speak>"
 
         output_path = output_dir / f"article_{i:02}.mp3"
         print(f"Generating audio for article {i}...")
@@ -84,7 +95,7 @@ def summaries_to_mp3(
             response = polly.synthesize_speech(
                 # Text=summary,
                 # SSML test with rate setting
-                Text=f"<speak><prosody rate='90%'>{summary}</prosody></speak>",
+                Text=summary_ssml,
                 TextType="ssml",
                 OutputFormat="mp3",
                 VoiceId=voice_id,
@@ -92,11 +103,13 @@ def summaries_to_mp3(
             )
 
             # Save the audio stream to a file
-            with open(output_path, "wb") as f:
-                f.write(response["AudioStream"].read())
+            with closing(response["AudioStream"]) as stream:
+                with open(output_path, "wb") as f:
+                    f.write(stream.read())
+
 
             # check and log amazan polly usage
-            text_len = len(summary) # Initial sample data 500: 100 words x 5 chars on average
+            text_len = len(summary_ssml) # Initial sample data 500: 100 words x 5 chars on average
             check_and_log_polly(text_len)
 
         except Exception as e:
@@ -110,8 +123,11 @@ def summaries_to_mp3(
 
 if __name__ == "__main__":
     # Example: Run standalone
-    example_json = Path("data/daily_summary_2025-08-07.json")
-    example_output_dir = Path("output/audio/2025-08-07")
+    example_json = Path("data/daily_summary_2025-09-14.json")
+    example_output_dir = Path("output/audio/work/2025-09-14")
+
+    # Ensure output directory exists
+    example_output_dir.mkdir(parents=True, exist_ok=True)
 
     summaries_to_mp3(
         json_path=example_json,
