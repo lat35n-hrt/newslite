@@ -2,9 +2,16 @@
 
 import json
 from pathlib import Path
+import html
 import boto3
 import os
 from dotenv import load_dotenv
+from contextlib import closing
+
+# Sanitize text for SSML
+def sanitize_for_ssml(text: str) -> str:
+    safe = html.escape(text, quote=True).replace("\n", " ")
+    return f"<speak>{safe}</speak>"
 
 # Load environment variables from .env
 load_dotenv()
@@ -18,8 +25,8 @@ polly = boto3.client(
 )
 
 # Joson path and output directory
-json_path = Path("data/daily_summary_2025-08-08.json")
-output_dir = Path("output/audio/2025-08-08")
+json_path = Path("data/daily_summary_2025-09-12.json")
+output_dir = Path("output/audio/work/2025-09-12")
 output_dir.mkdir(parents=True, exist_ok=True)
 
 # Load JSON
@@ -37,11 +44,13 @@ MAX_POLLY_CHAR_LENGTH = 3000
 # Text-to-mp3 for each article
 for i, article in enumerate(data, 1):
     summary = article.get("summary", "").strip()
-    if not summary:
+    summary_ssml = sanitize_for_ssml(summary)
+
+    if not summary_ssml:
         continue
 
-    if len(summary) > MAX_POLLY_CHAR_LENGTH:
-        print(f"⚠️ Skipping article {i} – text too long ({len(summary)} characters)")
+    if len(summary_ssml) > MAX_POLLY_CHAR_LENGTH:
+        print(f"⚠️ Skipping article {i} - text too long ({len(summary_ssml)} characters)")
         continue
 
     output_path = output_dir / f"article_{i:02}.mp3"
@@ -51,15 +60,20 @@ for i, article in enumerate(data, 1):
     try:
         # Synthesize speech
         response = polly.synthesize_speech(
-            Text=summary,
+            TextType="ssml",
+            Text=summary_ssml,
             OutputFormat="mp3",
             VoiceId=os.getenv("AWS_POLLY_VOICE_ID", "Ruth"),
             Engine=os.getenv("AWS_POLLY_ENGINE", "neural")
         )
 
         # Save the audio stream to a file
-        with open(output_path, "wb") as f:
-            f.write(response["AudioStream"].read())
+        # with open(output_path, "wb") as f:
+        #     f.write(response["AudioStream"].read())
+
+        with closing(response["AudioStream"]) as stream:
+            with open(output_path, "wb") as f:
+                f.write(stream.read())
 
     except Exception as e:
         print(f"⚠️ Failed to generate audio for article {i}: {e}")
