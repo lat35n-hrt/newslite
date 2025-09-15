@@ -84,8 +84,10 @@ def summaries_to_mp3(
             print(f"⚠️ Skipping article {i} – text too long ({len(safe_text)} characters)")
             continue
 
+        rate = os.getenv("AWS_POLLY_RATE", "100%")
+
         # Wrap with <speak> and <prosody>
-        summary_ssml = f"<speak><prosody rate='90%'>{safe_text}</prosody></speak>"
+        summary_ssml = f"<speak><prosody rate='{rate}'>{safe_text}</prosody></speak>"
 
         output_path = output_dir / f"article_{i:02}.mp3"
         print(f"Generating audio for article {i}...")
