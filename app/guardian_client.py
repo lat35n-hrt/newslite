@@ -9,11 +9,6 @@ load_dotenv()
 GUARDIAN_API_KEY = os.getenv("GUARDIAN_API_KEY")
 
 
-# Default values for 'query' and 'page_size' are set for:
-# - convenience during manual testing via `if __name__ == "__main__"`
-# - fallback behavior when parameters are not provided in FastAPI requests
-# page_size: number of article per page
-# page: page number on Guardian API
 def fetch_guardian_articles(
     query="technology",
     page_size=3,
@@ -24,8 +19,45 @@ def fetch_guardian_articles(
 ):
 
     """
-    Fetch unique Guardian articles, skipping 'live', 'quiz', 'obituary'.
-    Ensures exactly `page_size` articles per query (if available).
+    Fetch unique Guardian articles, ensuring a fixed number of valid results.
+
+    The Guardian Open Platform provides a paginated "Search" API endpoint:
+        https://content.guardianapis.com/search
+
+    ─────────────────────────────────────────────────────────────────────────────
+    🔹 Pagination Parameters (as per Guardian API)
+    - `page`: Specifies which page of results to return (integer ≥ 1)
+      → Conceptually identical to a UI "Next Page" button.
+        e.g., page=1 returns results 1–N, page=2 returns N+1–2N, etc.
+
+    - `page-size`: Defines how many items are shown per page (1–50)
+      → e.g., `page-size=3` returns 3 articles per request.
+        This mirrors the visible pagination on theguardian.com.
+
+    These parameters allow incremental retrieval of search results in small batches
+    (useful for rate limiting, deduplication, and filtering invalid articles).
+
+    ─────────────────────────────────────────────────────────────────────────────
+    🔹 Function Behavior
+    - Repeatedly requests new pages from the Guardian API until one of these conditions:
+        (a) A total of `page_size` valid articles are collected, OR
+        (b) `max_pages` have been checked (failsafe against infinite loops)
+
+    - Skips unwanted entries (live blogs, quizzes, obituaries)
+    - Ensures no duplicates using a title + URL tuple key
+    - Returns exactly `page_size` items per keyword if possible
+
+    ─────────────────────────────────────────────────────────────────────────────
+    Args:
+        query (str): Keyword to search (e.g., "technology")
+        page_size (int): Desired number of valid articles to return
+        fields (str): Comma-separated list of fields to include
+        page (int): Starting page number for the Guardian API
+        debug (bool): If True, prints detailed response info
+        max_pages (int): Maximum number of API pages to scan
+
+    Returns:
+        list[dict]: List of dictionaries containing article title, URL, and summary.
     """
 
     url = "https://content.guardianapis.com/search"
@@ -67,6 +99,7 @@ def fetch_guardian_articles(
 
         for item in data["response"]["results"]:
             total_checked += 1
+
             # Skip live blogs, Quizzes, and Obituaries
             # id: unique idenfitiers of articles e.g.
             # world/live/2025/aug/08/uk-election-live-updates
