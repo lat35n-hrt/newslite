@@ -64,12 +64,14 @@ def fetch_guardian_articles(
     articles = []
     seen = set()
     page = 1
-
     total_checked = 0
-    # per_page_limit = 5
 
-    # max_allowed = 30 # max 30 articles per page
-    # page_size = min(page_size, max_allowed)
+    # Guardian API `page-size` parameter controls both:
+    #  - how many articles are fetched per request (API fetch limit)
+    #  - how many articles are ultimately displayed (UI display count)
+    #
+    # The API enforces its own maximum of 50 items per page,
+    # so no additional local limits are required here.
 
     while len(articles) < page_size and page <= max_pages:
         params = {
