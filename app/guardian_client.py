@@ -6,16 +6,25 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
+# ────────────────────────────────────────────────────────────────
+# Configuration loaded from .env
+# ────────────────────────────────────────────────────────────────
 GUARDIAN_API_KEY = os.getenv("GUARDIAN_API_KEY")
+GUARDIAN_API_URL = os.getenv("GUARDIAN_API_URL", "https://content.guardianapis.com/search")
+GUARDIAN_DEFAULT_QUERY = os.getenv("GUARDIAN_DEFAULT_QUERY", "technology")
+GUARDIAN_DEFAULT_FIELDS = os.getenv("GUARDIAN_DEFAULT_FIELDS", "headline,bodyText,trailText")
+GUARDIAN_DEFAULT_PAGE_SIZE = int(os.getenv("GUARDIAN_DEFAULT_PAGE_SIZE", "3"))
+GUARDIAN_MAX_PAGES = int(os.getenv("GUARDIAN_MAX_PAGES", "3"))
+
 
 
 def fetch_guardian_articles(
-    query="technology",
-    page_size=3,
-    fields="headline,bodyText,trailText",
-    page=1,
-    debug=False,
-    max_pages=3
+    query: str = GUARDIAN_DEFAULT_QUERY,
+    page_size: int = GUARDIAN_DEFAULT_PAGE_SIZE,
+    fields: str = GUARDIAN_DEFAULT_FIELDS,
+    page: int = 1,
+    debug: bool = False,
+    max_pages: int = GUARDIAN_MAX_PAGES,
 ):
 
     """
@@ -60,8 +69,8 @@ def fetch_guardian_articles(
         list[dict]: List of dictionaries containing article title, URL, and summary.
     """
 
-    url = "https://content.guardianapis.com/search"
-    articles = []
+    url = GUARDIAN_API_URL
+    articles = []  # type: ignore
     seen = set()
     page = 1
     total_checked = 0
