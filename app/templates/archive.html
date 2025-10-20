@@ -12,25 +12,30 @@
         {% endfor %}
     </ul>
     <ul>
-        {% for article in articles %}
-            <li style="margin-bottom: 20px;">
-                <h3><a href="{{ article.url }}" target="_blank">{{ article.title }}</a></h3>
-                <p>{{ article.summary }}</p>
-            </li>
+        {% for group in articles | groupby('topic') %}
+            <h2>🗂️ {{ group.grouper | capitalize }}</h2>
+            <ul>
+                {% for article in group.list %}
+                    <li style="margin-bottom: 20px;">
+                        <h3><a href="{{ article.url }}" target="_blank">{{ article.title }}</a></h3>
+                    <p>{{ article.summary }}</p>
+                </li>
 
-            <!-- audio -->
-            {% if article.audio_path %}
-            <div>
-                <!-- Inline player -->
-                <audio controls preload="none">
-                <source src="/static/{{ article.audio_path }}" type="audio/mpeg">
-                Your browser does not support the audio element.
-                </audio>
+                <!-- audio -->
+                {% if article.audio_path %}
+                <div>
+                    <!-- Inline player -->
+                    <audio controls preload="none">
+                    <source src="/static/{{ article.audio_path }}" type="audio/mpeg">
+                    Your browser does not support the audio element.
+                    </audio>
 
-                <!-- Download link -->
-                <a href="/static/{{ article.audio_path }}" download>Download MP3</a>
-            </div>
-            {% endif %}
+                    <!-- Download link -->
+                    <a href="/static/{{ article.audio_path }}" download>Download MP3</a>
+                </div>
+                {% endif %}
+                {% endfor %}
+            </ul>
         {% endfor %}
     </ul>
 </body>

@@ -23,28 +23,40 @@ if output_file.exists():
     print(f"⛔ Summary already exists for {today_str}")
     exit(0)
 
+
+seen_urls = set()
+all_articles = []
+
 topics = ["technology", "climate", "education"]
 summaries = []
 full_articles = []
 
 for topic in topics:
     articles = fetch_guardian_articles(query=topic, page_size=3)
-    for article in articles:
+
+    for a in articles:
+        if a["url"] in seen_urls:
+            continue
+        seen_urls.add(a["url"])
+        all_articles.append(a)
+
         # print(json.dumps(article, indent=2)) # debug
-        body = article.get("fields", {}).get("bodyText", "")
+        body = a.get("fields", {}).get("bodyText", "")
 
         if not body:
             continue
 
         result = summarize_article(body)
         summaries.append({
-            "title": article.get("title", "(No title)"),
-            "url": article.get("url", "#"),
+            "title": a.get("title", "(No title)"),
+            "url": a.get("url", "#"),
             "topic": topic,
             "summary": result.get("summary", "(Summary unavailable)")
         })
 
     full_articles.extend(articles) # for a full backup
+
+    print(f"✅ {topic}: {len(articles)} fetched, {len(summaries)} total summarized")
 
 # Save Full Articles
 with open(output_file_full, "w", encoding="utf-8") as f:

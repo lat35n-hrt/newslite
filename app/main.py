@@ -64,6 +64,10 @@ def get_sample_summaries():
 
 templates = Jinja2Templates(directory="app/templates")
 
+templates.env.auto_reload = True
+templates.env.cache = {} # disable template caching for development
+
+
 @app.get("/", response_class=HTMLResponse)
 def search_ui(
     request: Request,
@@ -107,6 +111,9 @@ def daily_summary_page(request: Request):
 
     with open(data_file, "r", encoding="utf-8") as f:
         summaries = json.load(f)
+
+    # sort by topic
+    summaries = sorted(summaries, key=lambda x: x.get("topic", ""))
 
     return templates.TemplateResponse("daily.html", {
         "request": request,

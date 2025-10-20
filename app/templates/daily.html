@@ -9,6 +9,18 @@
     <p style="color:red;">{{ error }}</p>
   {% endif %}
 
+{% for topic, items in summaries | groupby('topic') %}
+  <h2>🗂️ {{ topic | capitalize }}</h2>
+  {% for item in items %}
+    <div style="margin-bottom: 20px;">
+      <h3><a href="{{ item.url }}" target="_blank">{{ item.title }}</a></h3>
+      <p>{{ item.summary | safe }}</p>
+      <hr>
+    </div>
+  {% endfor %}
+{% endfor %}
+
+<!--
   {% for item in summaries %}
     <div>
       <h2><a href="{{ item.url }}">{{ item.title }}</a></h2>
@@ -17,5 +29,7 @@
       <hr>
     </div>
   {% endfor %}
+ -->
+
 </body>
 </html>
