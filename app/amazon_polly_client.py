@@ -8,6 +8,7 @@ from dotenv import load_dotenv
 from app.usage_tracker import check_and_log_polly
 from contextlib import closing
 import html
+from datetime import datetime
 
 # Sanitize text for SSML
 def sanitize_for_ssml(text: str) -> str:
@@ -137,3 +138,36 @@ if __name__ == "__main__":
         voice_id="Ruth",
         engine="neural"
     )
+
+def merge_daily_audio_files(base_dir: Path = Path("output/audio")) -> None:
+    """
+    Merge all MP3 files for today's date into one full_day.mp3 file.
+
+    Equivalent to:
+        cat output/audio/$(date +%F)/*.mp3 > output/audio/$(date +%F)/full_day.mp3
+
+    Args:
+        base_dir (Path): Base directory where dated subfolders exist.
+    """
+    today_str = datetime.now().strftime("%Y-%m-%d")
+    daily_dir = base_dir / today_str
+    merged_path = daily_dir / "full_day.mp3"
+
+    if not daily_dir.exists():
+        print(f"⚠️ Directory not found: {daily_dir}")
+        return
+
+    # Collect all .mp3 files except 'full_day.mp3'
+    mp3_files = sorted(p for p in daily_dir.glob("*.mp3") if p.name != "full_day.mp3")
+
+    if not mp3_files:
+        print(f"⚠️ No MP3 files found in {daily_dir}")
+        return
+
+    # Merge all MP3 files into one
+    with open(merged_path, "wb") as outfile:
+        for mp3_file in mp3_files:
+            with open(mp3_file, "rb") as infile:
+                outfile.write(infile.read())
+
+    print(f"✅ Merged {len(mp3_files)} MP3 files → {merged_path}")

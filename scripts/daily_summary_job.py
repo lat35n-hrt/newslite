@@ -6,7 +6,7 @@ from pathlib import Path
 from datetime import date
 from app.guardian_client import fetch_guardian_articles
 from app.summary_llm import summarize_article
-from app.amazon_polly_client import summaries_to_mp3
+from app.amazon_polly_client import merge_daily_audio_files, summaries_to_mp3
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -78,3 +78,13 @@ summaries_to_mp3(
     voice_id=os.getenv("AWS_POLLY_VOICE_ID", "Ruth"),
     engine=os.getenv("AWS_POLLY_ENGINE", "neural")
 )
+
+# Merge daily audio file
+merge_daily_audio_files()
+
+# Note:
+# This module is designed to be self-contained.
+# It constructs its own output paths (date-based) to allow both
+# - standalone execution, and
+# - orchestration via daily_summary_job.py
+# without requiring explicit path arguments.
