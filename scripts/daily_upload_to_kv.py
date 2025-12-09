@@ -20,7 +20,7 @@ cmd = [
     "npx", "wrangler", "kv", "key", "put",
     f"articles/{today}",
     payload,
-    "--binding=test_kv",
+    "--binding=newslite_kv",
     "--preview",
     "--remote",
 ]
