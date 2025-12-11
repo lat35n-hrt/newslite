@@ -3,6 +3,7 @@
 
 # Generated daily summary data (json)
 data/
+backup/
 
 # Generated media + per-day synthesis settings (local-only)
 output/

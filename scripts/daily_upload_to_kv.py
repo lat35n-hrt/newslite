@@ -8,7 +8,8 @@ NEWSLITE_UI_DIR = pathlib.Path("~/dev/newslite-ui").expanduser()
 
 today = date.today().strftime("%Y-%m-%d")
 
-json_path = pathlib.Path(f"data/daily_summary_{today}.json")
+# Load today's JSON with audio URLs
+json_path = pathlib.Path(f"data/daily_summary_{today}_with_audio.json")
 
 if not json_path.exists():
     print(f"❌ File not found: {json_path}")
