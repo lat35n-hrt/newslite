@@ -291,6 +291,7 @@ using a relaxed configuration suitable for rapid prototyping.
 Full type annotations are not enforced,
 but the setup demonstrates awareness of static analysis and maintainability.
 
+
 ## 🧭 Roadmap
 
 - [x] Token / cost control strategy (moved to `docs/cost/openai_pricing_notes.md`)
