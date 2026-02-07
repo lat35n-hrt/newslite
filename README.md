@@ -176,9 +176,12 @@ This project includes a daily summary feature that fetches and summarizes articl
 To fetch and summarize the latest articles, run:
 
 
-```husb
+```bash
+python -m scripts.daily_summary_job
+```
+(Legacy)
 PYTHONPATH=. python scripts/daily_summary_job.py
-````
+
 
 
 Summaries will be saved as a JSON file under data/, named like:
@@ -191,10 +194,11 @@ The script will skip execution if a summary for today already exists.
 🌐 View the summaries in browser
 After generating the summary file, you can access the /daily endpoint:
 
+
 ```bash
 http://localhost:8000/daily
 
-````
+```
 This renders the latest daily summaries using the saved JSON.
 
 
@@ -299,7 +303,7 @@ but the setup demonstrates awareness of static analysis and maintainability.
 - [ ] Better error handling & logging
 - [ ] Async summarization & batching
 - [ ] Result caching (to avoid repeated Guardian/OpenAI calls)
-- [ ] Simple HTML front-end (Jinja2 or Streamlit)
+- [x] Simple HTML front-end (Jinja2 or Streamlit)
 - [ ] Optional AWS Polly voice selection (per user or article)
 - [ ] CLI tool to synthesize and preview articles
 - [ ] Rate limit safeguards & alerting (OpenAI / AWS)
