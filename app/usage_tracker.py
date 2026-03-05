@@ -29,7 +29,7 @@ def load_usage():
         return usage
 
     with open(USAGE_FILE) as f:
-        return json.load(f)
+        usage = json.load(f)
 
     # usage["last_reset"] holds the most recent reset month (i.e., the month currently being tracked)
     # The name "last_reset" may be somewhat misleading intuitively, but it currently refers to this month's data
