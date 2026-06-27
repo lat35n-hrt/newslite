@@ -296,6 +296,17 @@ Full type annotations are not enforced,
 but the setup demonstrates awareness of static analysis and maintainability.
 
 
+## Date Options
+
+If the daily operation fails, you can manually specify a date using the `--date` option.
+
+### Examples:
+```bash
+python -m scripts.attch_audio_urls --date 2026-06-25
+python -m scripts.newslite_ui_daily_job --date 2026-06-25
+python -m scripts.newslite_ui_daily_job --date 2026-06-25 --prod
+```
+
 ## 🧭 Roadmap
 
 - [x] Token / cost control strategy (moved to `docs/cost/openai_pricing_notes.md`)
