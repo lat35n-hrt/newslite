@@ -92,7 +92,7 @@ def main() -> int:
             print(f"❌ attach script not found: {attach_script}")
             return 1
 
-        r = run([sys.executable, str(attach_script)], cwd=newslite_dir)
+        r = run([sys.executable, str(attach_script), "--date", args.date], cwd=newslite_dir)
         if r.returncode != 0:
             print("❌ attach_audio_urls.py failed")
             if r.stdout:

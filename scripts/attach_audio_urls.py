@@ -8,6 +8,7 @@ attach_audio_urls.py — Add audio URLs to today's NewsLite JSON safely.
 - Prevents accidental overwrite or double processing
 """
 
+import argparse
 import json
 from datetime import date
 import os
@@ -27,7 +28,15 @@ if not R2_BASE_URL:
 
 
 def main():
-    today_str = date.today().strftime("%Y-%m-%d")
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "--date",
+        default=date.today().strftime("%Y-%m-%d"),
+        help=" Target date (YYYY-MM-DD) today by default",
+    )
+    args = parser.parse_args()
+    today_str = args.date  # ← set date string
 
     src_path = Path(f"data/daily_summary_{today_str}.json")
     dst_path = Path(f"data/daily_summary_{today_str}_with_audio.json")
