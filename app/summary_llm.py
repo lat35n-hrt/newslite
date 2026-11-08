@@ -43,10 +43,10 @@ Article:
 
     try:
         response = client.chat.completions.create(
-            model="gpt-3.5-turbo",
+            model="gpt-5.4-nano",
             messages=[{"role": "user", "content": prompt}],
             temperature=0.7, # Standard creativity level; allows some diversity and natural rephrasing.
-            max_tokens=500,  # Sufficient for long summaries.
+            max_completion_tokens=500,  # Sufficient for long summaries.
         )
 
         # TODO: After verifying token average, replace fixed cost tracking with dynamic token-based calculation

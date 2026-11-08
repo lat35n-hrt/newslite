@@ -111,6 +111,12 @@ def fetch_guardian_articles(
         for item in data["response"]["results"]:
             total_checked += 1
 
+            print("\n<<< ARTICLE TITLE >>>")
+            print(item.get("webTitle"))
+
+            print("\n<<< ARTICLE BODY >>>")
+            print(item.get("fields", {}).get("bodyText", "(Body unavailable)"))
+
             # Skip live blogs, Quizzes, and Obituaries
             # id: unique idenfitiers of articles e.g.
             # world/live/2025/aug/08/uk-election-live-updates
